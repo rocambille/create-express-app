@@ -2,10 +2,10 @@
 
 Set up a modern express app by running one command.
 
-> created by [create-create-app](https://github.com/uetchy/create-create-app).
+> crafted using [create-create-app](https://github.com/uetchy/create-create-app).
 
 ## Use
 
 ```bash
-npx create-express-app <name>
+npx @rocambille/create-express-app <name>
 ```

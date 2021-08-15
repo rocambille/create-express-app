@@ -1,5 +1,5 @@
 {
-  "name": "create-express-app",
+  "name": "@rocambille/create-express-app",
   "description": "Set up a modern express app by running one command.",
   "version": "0.0.1",
   "author": "rocambille <rocambille@gmail.com>",
