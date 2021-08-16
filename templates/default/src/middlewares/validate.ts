@@ -1,7 +1,7 @@
 import express from "express";
 import Validator from "validatorjs";
 
-Validator.useLang("en");
+Validator.useLang("{{language}}");
 
 export const validate =
   (rules: Validator.Rules, options?: { merge?: boolean }) =>
