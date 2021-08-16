@@ -1,14 +1,14 @@
 import { Router } from "express";
 
-import { login, register } from "../carriages/auth";
+import { login, register } from "../series/auth";
 
-const routes = Router();
+const router = Router();
 
-routes.post("/login", login({ expiresIn: "15m" }));
+router.post("/login", login({ expiresIn: "15m" }));
 
-routes.post(
+router.post(
   "/register",
   register({ email: "email|required", password: "required" })
 );
 
-export default routes;
+export default router;

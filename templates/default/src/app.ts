@@ -7,23 +7,13 @@ const app = express();
 app.use(express.json());
 
 app.use((req, res, next) => {
-  req.trolley = {
-    get body() {
-      return req.body;
-    },
-    get query() {
-      return req.query;
-    },
-    get params() {
-      return req.params;
-    },
-    parse: function (path: string) {
-      const keys = path.split(".");
-      const field = keys.pop();
-      const source = keys.reduce((object, key) => object[key], this);
+  req.parse = (path: string) => {
+    const keys = path.split(".");
 
-      return [source, field];
-    },
+    const key = keys.pop();
+    const box = keys.reduce((object, key) => object[key], req);
+
+    return [box, key];
   };
   next();
 });

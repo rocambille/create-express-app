@@ -2,54 +2,23 @@ import express from "express";
 
 export const assertEquals =
   (path1: string, path2: string, statusOnFail: number = 500) =>
-  (
-    { trolley }: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const [source1, key1] = trolley.parse(path1);
-    const [source2, key2] = trolley.parse(path2);
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const [box1, key1] = req.parse(path1);
+    const [box2, key2] = req.parse(path2);
 
-    if (source1[key1] === source2[key2]) {
+    if (box1[key1] === box2[key2]) {
       next();
     } else {
       next(statusOnFail);
     }
   };
 
-export const carriage =
-  (...middlewares: Function[]) =>
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    let failed = false;
-
-    for (let i = 0; !failed && i < middlewares.length; ++i) {
-      await middlewares[i](req, res, (err: any) => {
-        if (err) {
-          failed = true;
-          next(err);
-        }
-      });
-    }
-
-    if (!failed) {
-      next();
-    }
-  };
-
 export const failIfExists =
   (path: string, status: number = 400) =>
-  (
-    { trolley }: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const [source, key] = trolley.parse(path);
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const [box, key] = req.parse(path);
 
-    if (source[key] != null) {
+    if (box[key] != null) {
       next(status);
     } else {
       next();
@@ -57,47 +26,39 @@ export const failIfExists =
   };
 
 export const merge =
-  (sourcePaths: string[], options?: { into?: string }) =>
-  (
-    { trolley }: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const [dest, destKey] = trolley.parse(options?.into ?? sourcePaths[0]);
+  (paths: string[], options?: { into?: string }) =>
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const [inbox, inkey] = req.parse(options?.into ?? paths[0]);
 
-    dest[destKey] = sourcePaths.reduce((acc, sourcePath) => {
-      const [source, sourceKey] = trolley.parse(sourcePath);
+    inbox[inkey] = paths.reduce((acc, path) => {
+      const [outbox, outkey] = req.parse(path);
 
-      if (typeof source[sourceKey] === "object") {
-        return { ...acc, ...source[sourceKey] };
+      if (typeof outbox[outkey] === "object") {
+        return { ...acc, ...outbox[outkey] };
       } else {
-        return { ...acc, [sourceKey]: source[sourceKey] };
+        return { ...acc, [outkey]: outbox[outkey] };
       }
-    }, dest[destKey] ?? {});
+    }, inbox[inkey] ?? {});
 
     next();
   };
 
 export const parseInt =
   (path: string) =>
-  (
-    { trolley }: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const [source, key] = trolley.parse(path);
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const [box, key] = req.parse(path);
 
-    source[key] = global.parseInt(source[key]);
+    box[key] = global.parseInt(box[key]);
 
     next();
   };
 
 export const send =
   (path: string, status: number = 200) =>
-  ({ trolley }: express.Request, res: express.Response) => {
-    const [source, key] = trolley.parse(path);
+  (req: express.Request, res: express.Response) => {
+    const [box, key] = req.parse(path);
 
-    const value = source[key];
+    const value = box[key];
 
     if (Array.isArray(value) || typeof value === "object") {
       res.status(status).json(value);
@@ -109,4 +70,31 @@ export const send =
 export const sendStatus =
   (status: number) => (req: express.Request, res: express.Response) => {
     res.sendStatus(status);
+  };
+
+export const use =
+  (...middlewares: Function[]) =>
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    let goNext = true;
+
+    for (let i = 0; goNext && i < middlewares.length; ++i) {
+      goNext = false;
+
+      await middlewares[i](req, res, (err: any) => {
+        if (err) {
+          goNext = false;
+          return next(err);
+        }
+
+        goNext = true;
+      });
+    }
+
+    if (goNext) {
+      next();
+    }
   };

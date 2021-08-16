@@ -26,11 +26,11 @@ export const queries = (
   const findAll =
     (options: any = {}) =>
     async (
-      { trolley }: express.Request,
+      req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
-      trolley[names] = await model.findMany({
+      req[names] = await model.findMany({
         select: parse(options.select),
       });
 
@@ -40,15 +40,15 @@ export const queries = (
   const find =
     (path: string, options: any = {}) =>
     async (
-      { trolley }: express.Request,
+      req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
-      const [source, field] = trolley.parse(path);
+      const [box, key] = req.parse(path);
 
-      trolley[name] = await model.findUnique({
+      req[name] = await model.findUnique({
         where: {
-          [field]: source[field],
+          [key]: box[key],
         },
         select: parse(options.select),
       });
@@ -64,7 +64,7 @@ export const queries = (
       next: express.NextFunction
     ) => {
       await find(path, options)(req, res, () => {
-        if (req.trolley[name] != null) {
+        if (req[name] != null) {
           next();
         } else {
           next(404);
@@ -75,15 +75,15 @@ export const queries = (
   const persist =
     (options: any = {}) =>
     async (
-      { trolley }: express.Request,
+      req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
       try {
-        trolley[name] = await model.upsert({
-          create: trolley.validated,
-          update: trolley.validated,
-          where: { id: trolley.validated.id ?? 0 },
+        req[name] = await model.upsert({
+          create: req.validated,
+          update: req.validated,
+          where: { id: req.validated.id ?? 0 },
           select: parse(options.select),
         });
         next();
@@ -92,10 +92,29 @@ export const queries = (
       }
     };
 
+  const destroy =
+    (path: string) =>
+    async (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction
+    ) => {
+      const [box, key] = req.parse(path);
+
+      await model.delete({
+        where: {
+          [key]: box[key],
+        },
+      });
+
+      next();
+    };
+
   return {
     findAll,
     find,
     findOrFail,
     persist,
+    destroy,
   };
 };

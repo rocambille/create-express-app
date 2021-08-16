@@ -1,19 +1,15 @@
 import express from "express";
 import Validator from "validatorjs";
 
-Validator.useLang("{{language}}");
+Validator.useLang("en");
 
 export const validate =
   (rules: Validator.Rules, options?: { merge?: boolean }) =>
-  (
-    { trolley }: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const validation = new Validator(trolley.body, rules);
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const validation = new Validator(req.body, rules);
 
     if (validation.passes()) {
-      trolley.validated = trolley.body;
+      req.validated = req.body;
 
       next();
     } else {

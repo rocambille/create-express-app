@@ -1,5 +1,6 @@
 declare namespace Express {
   interface Request {
-    trolley: any;
+    parse: Function;
+    [key: string]: any;
   }
 }

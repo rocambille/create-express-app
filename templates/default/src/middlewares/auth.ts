@@ -5,15 +5,15 @@ import jwt from "jsonwebtoken";
 export const hash =
   (path: string) =>
   async (
-    { trolley }: express.Request,
+    req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) => {
-    const [source, field] = trolley.parse(path);
+    const [box, key] = req.parse(path);
 
     try {
-      if (source[field] != null) {
-        source[field] = await argon2.hash(source[field]);
+      if (box[key] != null) {
+        box[key] = await argon2.hash(box[key]);
       }
       next();
     } catch (err) {
@@ -24,13 +24,14 @@ export const hash =
 export const verify =
   (path: string) =>
   async (
-    { trolley }: express.Request,
+    req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) => {
-    const [source, field] = trolley.parse(path);
-    const password = source[field];
-    const hash = trolley.user.password;
+    const [box, key] = req.parse(path);
+    const password = box[key];
+
+    const hash = req.user.password;
 
     try {
       if (await argon2.verify(hash, password)) {
@@ -57,7 +58,7 @@ export const authenticate =
     const authorization = req.get("Authorization") ?? "";
 
     try {
-      req.trolley.payload = jwt.verify(
+      req.payload = jwt.verify(
         authorization.split(" ")[1],
         process.env.APP_SECRET
       );
@@ -72,18 +73,14 @@ export const authenticate =
 
 export const sign =
   (options: jwt.SignOptions) =>
-  (
-    { trolley }: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
     try {
       if (process.env.APP_SECRET == null) {
         throw new Error("Unexpected error: Missing secret");
       }
 
-      trolley.token = jwt.sign(
-        { sub: trolley.user.id },
+      req.token = jwt.sign(
+        { sub: req.user.id },
         process.env.APP_SECRET,
         options
       );
