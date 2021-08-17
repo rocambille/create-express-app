@@ -1,7 +1,7 @@
 {
   "name": "@rocambille/create-express-app",
   "description": "Set up a modern express app by running one command.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "author": "rocambille <rocambille@gmail.com>",
   "scripts": {
     "build": "tsup src/cli.ts --minify",

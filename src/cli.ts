@@ -2,6 +2,7 @@
 
 import { AfterHookOptions, create } from "create-create-app";
 import { resolve } from "path";
+import { copyFile, rename } from "fs/promises";
 
 const templateRoot = resolve(__dirname, "..", "templates");
 
@@ -27,6 +28,13 @@ create("create-express-app", {
       default: "en",
       prompt: "if-no-arg",
     },
+  },
+  after: async ({ packageDir }: AfterHookOptions) => {
+    await copyFile(`${packageDir}/.env`, `${packageDir}/.env.sample`);
+    await rename(
+      `${packageDir}/.template.gitignore`,
+      `${packageDir}/.gitignore`
+    );
   },
   caveat,
 });

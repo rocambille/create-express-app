@@ -16,11 +16,7 @@ export const queries = (
       return null;
     }
 
-    if (select == null) {
-      return globalOptions?.public ?? {};
-    }
-
-    return select;
+    return select ?? globalOptions?.public;
   };
 
   const findAll =
