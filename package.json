@@ -3,6 +3,11 @@
   "description": "Set up a modern express app by running one command.",
   "version": "0.0.3",
   "author": "rocambille <rocambille@gmail.com>",
+  "homepage": "https://github.com/rocambille/create-express-app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rocambille/create-express-app.git"
+  },
   "scripts": {
     "build": "tsup src/cli.ts --minify",
     "clean": "shx rm -rf lib",
