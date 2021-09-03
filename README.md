@@ -7,5 +7,5 @@ Set up a modern express app by running one command.
 ## Use
 
 ```bash
-npx @rocambille/create-express-app <name>
+npx @rocambille/create-express-app@latest <name>
 ```
