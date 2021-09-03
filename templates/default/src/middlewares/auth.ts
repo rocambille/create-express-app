@@ -22,10 +22,8 @@ export const authenticate =
       );
 
       next();
-    } catch (err) {
-      err.status = 401;
-
-      next(err);
+    } catch ({ message }) {
+      next({ message, status: 401 });
     }
   };
 
