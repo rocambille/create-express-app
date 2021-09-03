@@ -25,6 +25,16 @@ export const failIfExists =
     }
   };
 
+export const log =
+  (path: string) =>
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const [box, key] = req.parse(path);
+
+    console.log(box[key]);
+
+    next();
+  };
+
 export const merge =
   (paths: string[], options?: { into?: string }) =>
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
