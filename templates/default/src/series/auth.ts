@@ -18,7 +18,7 @@ export const register = (rules: Validator.Rules) =>
 
 export const login = (options: SignOptions) =>
   use(
-    User.findOrFail("body.email", { select: { id: true, password: true } }),
+    User.findOrFail("body.email", { expose: { password: true } }),
     verify("body.password"),
     sign(options),
     send("token")

@@ -1,3 +1,3 @@
 import { queries } from "../../prisma";
 
-export const User = queries("user", { public: { id: true, email: true } });
+export const User = queries("user", { hide: { password: true } });

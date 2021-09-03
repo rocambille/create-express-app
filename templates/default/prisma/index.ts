@@ -1,22 +1,47 @@
 import express from "express";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
 export const queries = (
-  name: string,
-  globalOptions?: { public?: { [field: string]: boolean } }
+  name: keyof typeof prisma,
+  globalOptions?: { hide: { [field: string]: any } }
 ) => {
-  const model = Object(prisma)[name];
+  const model = prisma[name] as any;
 
+  const capitalName = name.charAt(0).toUpperCase() + name.slice(1);
   const names = name.endsWith("y") ? `${name.slice(0, -1)}ies` : `${name}s`;
 
-  const parse = (select?: { [field: string]: boolean } | string) => {
-    if (select === "*") {
-      return null;
-    }
+  const globalSelect = Object.keys(
+    Prisma[`${capitalName}ScalarFieldEnum` as keyof typeof Prisma]
+  )
+    .filter(
+      (key) =>
+        !Object.keys(globalOptions?.hide as Object).find(
+          (hiddenKey) => key === hiddenKey
+        )
+    )
+    .reduce((select, key) => ({ ...select, [key]: true }), {});
 
-    return select ?? globalOptions?.public;
+  const from = (
+    options: { expose?: any; select?: any; where?: any } = {},
+    req: Express.Request
+  ) => {
+    const { expose, select, where, ...rest } = options;
+    return {
+      select: {
+        ...globalSelect,
+        ...req.select,
+        ...select,
+        ...expose,
+      },
+      where: {
+        ...req.query.where,
+        ...req.where,
+        ...options.where,
+      },
+      ...rest,
+    };
   };
 
   const findAll =
@@ -26,9 +51,7 @@ export const queries = (
       res: express.Response,
       next: express.NextFunction
     ) => {
-      req[names] = await model.findMany({
-        select: parse(options.select),
-      });
+      req[names] = await model.findMany(from(options, req));
 
       next();
     };
@@ -42,12 +65,9 @@ export const queries = (
     ) => {
       const [box, key] = req.parse(path);
 
-      req[name] = await model.findUnique({
-        where: {
-          [key]: box[key],
-        },
-        select: parse(options.select),
-      });
+      options.where = { ...options.where, [key]: box[key] };
+
+      req[name] = await model.findUnique(from(options, req));
 
       next();
     };
@@ -75,13 +95,12 @@ export const queries = (
       res: express.Response,
       next: express.NextFunction
     ) => {
+      options.where = { ...options.where, id: req.validated.id ?? 0 };
+      options.create = options.update = req.validated;
+
       try {
-        req[name] = await model.upsert({
-          create: req.validated,
-          update: req.validated,
-          where: { id: req.validated.id ?? 0 },
-          select: parse(options.select),
-        });
+        req[name] = await model.upsert(from(options, req));
+
         next();
       } catch (err) {
         next(err);
