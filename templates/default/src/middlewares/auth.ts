@@ -2,48 +2,6 @@ import express from "express";
 import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 
-export const hash =
-  (path: string) =>
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const [box, key] = req.parse(path);
-
-    try {
-      if (box[key] != null) {
-        box[key] = await argon2.hash(box[key]);
-      }
-      next();
-    } catch (err) {
-      next(err);
-    }
-  };
-
-export const verify =
-  (path: string) =>
-  async (
-    req: express.Request,
-    res: express.Response,
-    next: express.NextFunction
-  ) => {
-    const [box, key] = req.parse(path);
-    const password = box[key];
-
-    const hash = req.user.password;
-
-    try {
-      if (await argon2.verify(hash, password)) {
-        next();
-      } else {
-        next(401);
-      }
-    } catch (err) {
-      next(err);
-    }
-  };
-
 export const authenticate =
   () =>
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -71,6 +29,25 @@ export const authenticate =
     }
   };
 
+export const hash =
+  (path: string) =>
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    const [box, key] = req.parse(path);
+
+    try {
+      if (box[key] != null) {
+        box[key] = await argon2.hash(box[key]);
+      }
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
+
 export const sign =
   (options: jwt.SignOptions) =>
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -86,6 +63,29 @@ export const sign =
       );
 
       next();
+    } catch (err) {
+      next(err);
+    }
+  };
+
+export const verify =
+  (path: string) =>
+  async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    const [box, key] = req.parse(path);
+    const password = box[key];
+
+    const hash = req.user.password;
+
+    try {
+      if (await argon2.verify(hash, password)) {
+        next();
+      } else {
+        next(401);
+      }
     } catch (err) {
       next(err);
     }
