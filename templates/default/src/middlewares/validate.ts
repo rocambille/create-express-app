@@ -4,7 +4,7 @@ import Validator from "validatorjs";
 Validator.useLang("{{language}}");
 
 export const validate =
-  (rules: Validator.Rules, options?: { merge?: boolean }) =>
+  (rules: Validator.Rules) =>
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
     const validation = new Validator(req.body, rules);
 
