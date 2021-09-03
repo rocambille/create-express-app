@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 export const queries = (
   name: keyof typeof prisma,
-  globalOptions?: { hide: { [field: string]: any } }
+  globalOptions?: { hide: Record<string, any> }
 ) => {
   const model = prisma[name] as any;
 
