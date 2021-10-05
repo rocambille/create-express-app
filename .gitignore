@@ -101,4 +101,7 @@ public/
 # DynamoDB Local files
 .dynamodb/
 
+#assets
+bashScreen.png
+
 # End of https://www.gitignore.io/api/node
