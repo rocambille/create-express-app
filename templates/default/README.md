@@ -12,6 +12,7 @@ Here is a non-exhaustive view of the directory structure:
 .
 ├── .env                    # Environment variables (ignored by git)
 ├── prisma                  # See https://www.prisma.io/docs/concepts if you're unfamiliar with prisma
+│   ├── client.ts           # Prisma client (use it only for custom queries, see src/middlewares/queries.ts for common queries)
 │   └── schema.prisma       # Database schema
 └── src
     ├── app.ts              # App configuration
