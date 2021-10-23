@@ -63,26 +63,7 @@ export const parseInt =
     next();
   };
 
-export const send =
-  (path: string, status: number = 200) =>
-  (req: express.Request, res: express.Response) => {
-    const [box, key] = req.parse(path);
-
-    const value = box[key];
-
-    if (Array.isArray(value) || typeof value === "object") {
-      res.status(status).json(value);
-    } else {
-      res.status(status).json({ [key]: value });
-    }
-  };
-
-export const sendStatus =
-  (status: number) => (req: express.Request, res: express.Response) => {
-    res.sendStatus(status);
-  };
-
-export const use =
+export const pipe =
   (...middlewares: Function[]) =>
   async (
     req: express.Request,
@@ -100,4 +81,23 @@ export const use =
     }
 
     next(err);
+  };
+
+export const send =
+  (path: string, status: number = 200) =>
+  (req: express.Request, res: express.Response) => {
+    const [box, key] = req.parse(path);
+
+    const value = box[key];
+
+    if (Array.isArray(value) || typeof value === "object") {
+      res.status(status).json(value);
+    } else {
+      res.status(status).json({ [key]: value });
+    }
+  };
+
+export const sendStatus =
+  (status: number) => (req: express.Request, res: express.Response) => {
+    res.sendStatus(status);
   };

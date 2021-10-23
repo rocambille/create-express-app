@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { login, register } from "../series/auth";
+import { login, register } from "../pipes/auth";
 
 const router = Router();
 

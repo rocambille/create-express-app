@@ -2,12 +2,12 @@ import { SignOptions } from "jsonwebtoken";
 import Validator from "validatorjs";
 
 import { hash, sign, verify } from "../middlewares/auth";
-import { failIfExists, send, use } from "../middlewares/common";
+import { failIfExists, pipe, send } from "../middlewares/common";
 import { User } from "../middlewares/queries";
 import { validate } from "../middlewares/validate";
 
 export const register = (rules: Validator.Rules) =>
-  use(
+  pipe(
     validate(rules),
     User.find("validated.email"),
     failIfExists("user"),
@@ -17,7 +17,7 @@ export const register = (rules: Validator.Rules) =>
   );
 
 export const login = (options: SignOptions) =>
-  use(
+  pipe(
     User.findOrFail("body.email", { expose: { password: true } }),
     verify("body.password"),
     sign(options),

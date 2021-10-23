@@ -20,11 +20,11 @@ Here is a non-exhaustive view of the directory structure:
     │   ├── common.ts
     │   ├── queries.ts      # ORM configuration
     │   └── validate.ts     # Data validation using [validatorjs](https://www.npmjs.com/package/validatorjs)
-    ├── routes
-    │   ├── auth.ts
-    │   └── index.ts
-    └── series              # Middleware sequences
-        └── auth.ts         # Auth configuration
+    ├── pipes               # Middleware sequences
+    │   └── auth.ts         # Auth configuration
+    └── routes
+        ├── auth.ts
+        └── index.ts
 ```
 
 ## Built-in commands
