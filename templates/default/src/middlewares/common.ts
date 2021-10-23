@@ -89,22 +89,15 @@ export const use =
     res: express.Response,
     next: express.NextFunction
   ) => {
-    let goNext = true;
+    let err = null;
 
-    for (let i = 0; goNext && i < middlewares.length; ++i) {
-      goNext = false;
-
-      await middlewares[i](req, res, (err: any) => {
-        if (err) {
-          goNext = false;
-          return next(err);
-        }
-
-        goNext = true;
-      });
+    for (const middleware of middlewares) {
+      if (err == null) {
+        await middleware(req, res, (err_: any) => {
+          err = err_;
+        });
+      }
     }
 
-    if (goNext) {
-      next();
-    }
+    next(err);
   };
