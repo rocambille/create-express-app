@@ -14,12 +14,10 @@ export const authenticate =
     }
 
     const authorization = req.get("Authorization") ?? "";
+    const bearer = authorization.split(" ")[1];
 
     try {
-      req.payload = jwt.verify(
-        authorization.split(" ")[1],
-        process.env.APP_SECRET
-      );
+      req.payload = jwt.verify(bearer, process.env.APP_SECRET);
 
       next();
     } catch ({ message }) {
@@ -46,19 +44,18 @@ export const hash =
     }
   };
 
-export const sign =
-  (options: jwt.SignOptions) =>
+export const signToken =
+  (payloadPath: string, options: jwt.SignOptions) =>
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const [box, key] = req.parse(payloadPath);
+    const payload = box[key];
+
     try {
       if (process.env.APP_SECRET == null) {
         throw new Error("Unexpected error: Missing secret");
       }
 
-      req.token = jwt.sign(
-        { sub: req.user.id },
-        process.env.APP_SECRET,
-        options
-      );
+      req.token = jwt.sign(payload, process.env.APP_SECRET, options);
 
       next();
     } catch (err) {
@@ -67,16 +64,17 @@ export const sign =
   };
 
 export const verify =
-  (path: string) =>
+  (hashPath: string, passwordPath: string) =>
   async (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction
   ) => {
-    const [box, key] = req.parse(path);
-    const password = box[key];
+    const [hashBox, hashKey] = req.parse(hashPath);
+    const hash = hashBox[hashKey];
 
-    const hash = req.user.password;
+    const [passwordBox, passwordKey] = req.parse(passwordPath);
+    const password = passwordBox[passwordKey];
 
     try {
       if (await argon2.verify(hash, password)) {

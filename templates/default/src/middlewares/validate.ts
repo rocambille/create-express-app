@@ -4,12 +4,13 @@ import Validator from "validatorjs";
 Validator.useLang("{{language}}");
 
 export const validate =
-  (rules: Validator.Rules) =>
+  (path: string, rules: Validator.Rules) =>
   (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    const validation = new Validator(req.body, rules);
+    const [box, key] = req.parse(path);
+    const validation = new Validator(box[key], rules);
 
     if (validation.passes()) {
-      req.validated = req.body;
+      req.validated = box[key];
 
       next();
     } else {

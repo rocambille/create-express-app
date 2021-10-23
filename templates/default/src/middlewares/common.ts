@@ -13,6 +13,33 @@ export const assertEquals =
     }
   };
 
+export const build =
+  (path: string) =>
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const keys = path.split(".");
+
+    keys.reduce((object, key) => {
+      if (object[key] == null) {
+        object[key] = {};
+      }
+
+      return object[key];
+    }, req);
+
+    next();
+  };
+
+export const copy =
+  (source: string, dest: string) =>
+  (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    const [outbox, outkey] = req.parse(source);
+    const [inbox, inkey] = req.parse(dest);
+
+    inbox[inkey] = outbox[outkey];
+
+    next();
+  };
+
 export const failIfExists =
   (path: string, status: number = 400) =>
   (req: express.Request, res: express.Response, next: express.NextFunction) => {

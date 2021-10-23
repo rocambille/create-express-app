@@ -89,14 +89,16 @@ export const queries = (
     };
 
   const persist =
-    (options: any = {}) =>
+    (path: string, options: any = {}) =>
     async (
       req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
+      const [box, key] = req.parse(path);
+
       options.where = { ...options.where, id: req.validated.id ?? 0 };
-      options.create = options.update = req.validated;
+      options.create = options.update = box[key];
 
       try {
         req[name] = await model.upsert(from(options, req));
