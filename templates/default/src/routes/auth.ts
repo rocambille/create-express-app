@@ -4,11 +4,19 @@ import { login, register } from "../pipes/auth";
 
 const router = Router();
 
-router.post("/login", login({ expiresIn: "15m" }));
+router.post(
+  "/login",
+  login({
+    expect: { email: "email|required", password: "required" },
+    expiresIn: "15m",
+  })
+);
 
 router.post(
   "/register",
-  register({ email: "email|required", password: "required" })
+  register({
+    expect: { email: "email|required", password: "required" },
+  })
 );
 
 export default router;

@@ -73,17 +73,21 @@ export const queries = (
     };
 
   const findOrFail =
-    (path: string, options: any = {}) =>
+    (
+      path: string,
+      options: { statusOnFail?: number; [key: string]: any } = {}
+    ) =>
     async (
       req: express.Request,
       res: express.Response,
       next: express.NextFunction
     ) => {
-      await find(path, options)(req, res, () => {
+      const { statusOnFail = 404, ...otherOptions } = options;
+      await find(path, otherOptions)(req, res, () => {
         if (req[name] != null) {
           next();
         } else {
-          next(404);
+          next(statusOnFail);
         }
       });
     };
