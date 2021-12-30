@@ -1,7 +1,7 @@
 {
   "name": "@rocambille/create-express-app",
   "description": "Set up a functional express app by running one command.",
-  "version": "0.0.9",
+  "version": "1.0.0",
   "author": "rocambille <rocambille@gmail.com>",
   "homepage": "https://github.com/rocambille/create-express-app#readme",
   "repository": {
